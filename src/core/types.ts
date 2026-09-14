@@ -72,3 +72,15 @@ export interface TriageRecord {
   repairUsed: boolean;
   createdAt: number;
 }
+
+/** Ein angelegter (oder im Dry-Run nur berechneter) Antwortentwurf. */
+export interface DraftRecord {
+  messageId: string;
+  threadId: string;
+  /** null im Dry-Run: der Text steht, bei Gmail liegt nichts. */
+  gmailDraftId: string | null;
+  kind: 'rueckfrage' | 'eingangsbestaetigung';
+  body: string;
+  dryRun: boolean;
+  createdAt: number;
+}

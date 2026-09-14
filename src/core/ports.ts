@@ -1,4 +1,10 @@
-import type { MessageRef, NormalizedMessage, RawMessage, TriageRecord } from './types.js';
+import type {
+  DraftRecord,
+  MessageRef,
+  NormalizedMessage,
+  RawMessage,
+  TriageRecord,
+} from './types.js';
 
 /**
  * Ports. core/ definiert sie, adapters/ implementiert sie.
@@ -62,4 +68,19 @@ export interface TriageStore {
   /** Juengster Datensatz zu einer Mail, oder null. Basis der Re-Run-Logik. */
   latestTriage(messageId: string): TriageRecord | null;
   listTriage(since: Date): TriageRecord[];
+}
+
+export interface DraftStore {
+  /**
+   * Legt den Entwurf ab. Der Primaerschluessel ist die Message-ID: ein
+   * zweiter Lauf kann keinen zweiten Entwurf zur selben Mail erzeugen.
+   * Rueckgabe false, wenn schon einer vorlag.
+   */
+  insertDraft(d: DraftRecord): boolean;
+  /**
+   * Zieht einen Dry-Run-Eintrag auf einen echten Entwurf nach. Greift nur,
+   * solange dort noch kein Gmail-Entwurf hinterlegt ist.
+   */
+  replaceDryRunDraft(d: DraftRecord): boolean;
+  getDraft(messageId: string): DraftRecord | null;
 }

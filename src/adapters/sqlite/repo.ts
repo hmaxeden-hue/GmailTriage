@@ -1,5 +1,5 @@
-import type { MessageStore, RunStore, TriageStore } from '../../core/ports.js';
-import type { NormalizedMessage, TriageRecord } from '../../core/types.js';
+import type { DraftStore, MessageStore, RunStore, TriageStore } from '../../core/ports.js';
+import type { DraftRecord, NormalizedMessage, TriageRecord } from '../../core/types.js';
 import type { Db } from './db.js';
 
 interface MessageRow {
@@ -228,5 +228,69 @@ export class SqliteTriageStore implements TriageStore {
       )
       .all(since.getTime()) as TriageRow[];
     return rows.map(toTriage);
+  }
+}
+
+interface DraftRow {
+  message_id: string;
+  thread_id: string;
+  gmail_draft_id: string | null;
+  kind: DraftRecord['kind'];
+  body: string;
+  dry_run: number;
+  created_at: number;
+}
+
+function toDraft(r: DraftRow): DraftRecord {
+  return {
+    messageId: r.message_id,
+    threadId: r.thread_id,
+    gmailDraftId: r.gmail_draft_id,
+    kind: r.kind,
+    body: r.body,
+    dryRun: r.dry_run === 1,
+    createdAt: r.created_at,
+  };
+}
+
+export class SqliteDraftStore implements DraftStore {
+  constructor(private readonly db: Db) {}
+
+  /** INSERT OR IGNORE gegen den Primaerschluessel — hier sitzt die Idempotenz. */
+  insertDraft(d: DraftRecord): boolean {
+    const info = this.db
+      .prepare(
+        `INSERT OR IGNORE INTO drafts
+           (message_id, thread_id, gmail_draft_id, kind, body, dry_run, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        d.messageId,
+        d.threadId,
+        d.gmailDraftId,
+        d.kind,
+        d.body,
+        d.dryRun ? 1 : 0,
+        d.createdAt,
+      );
+    return info.changes > 0;
+  }
+
+  replaceDryRunDraft(d: DraftRecord): boolean {
+    const info = this.db
+      .prepare(
+        `UPDATE drafts
+            SET gmail_draft_id = ?, kind = ?, body = ?, dry_run = 0, created_at = ?
+          WHERE message_id = ? AND dry_run = 1`,
+      )
+      .run(d.gmailDraftId, d.kind, d.body, d.createdAt, d.messageId);
+    return info.changes > 0;
+  }
+
+  getDraft(messageId: string): DraftRecord | null {
+    const row = this.db.prepare('SELECT * FROM drafts WHERE message_id = ?').get(messageId) as
+      | DraftRow
+      | undefined;
+    return row ? toDraft(row) : null;
   }
 }

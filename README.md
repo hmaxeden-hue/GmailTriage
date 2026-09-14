@@ -4,7 +4,7 @@ Lokal laufender Prototyp: liest das eigene Gmail-Postfach, erkennt Offert-
 anfragen, erfasst sie strukturiert und bereitet einen Antwortentwurf vor.
 Die Freigabe macht immer der Mensch.
 
-**Stand: CP2 (Klassifikation).** Entwürfe und Digest folgen in CP3–CP4.
+**Stand: CP3 (Entwürfe).** Digest und Gesamt-CLI folgen in CP4.
 
 ## Harte Regeln
 
@@ -36,8 +36,13 @@ pnpm install
 5. Ablegen als `config/credentials.json` (steht in `.gitignore`)
 
 ```bash
-pnpm auth       # einmalig: Browser-Freigabe, Token nach config/token.json (0600)
+pnpm auth            # nur Lesezugriff (gmail.readonly)
+pnpm auth --drafts   # zusätzlich Entwürfe anlegen (gmail.compose)
 ```
+
+Das Token landet in `config/token.json` (Dateirechte 0600). Wenn du später
+`--drafts` nachziehst, lösche die Datei vorher — Google gibt sonst das alte,
+engere Token zurück.
 
 ### Betriebsprofil
 
@@ -53,6 +58,8 @@ pnpm ingest --since=7d                          # gegen das echte Postfach
 pnpm classify --since=7d                        # klassifiziert, was im Ingest liegt
 pnpm classify --model=claude-haiku-4-5          # Modell für einen Lauf überschreiben
 pnpm classify --reclassify                      # bereits Eingeordnetes neu bewerten
+pnpm draft --since=7d                           # Entwurfstexte berechnen, nichts anlegen
+pnpm draft --since=7d --write                   # Entwürfe bei Gmail anlegen
 ```
 
 Gmail-Filter: `is:unread -category:promotions -category:social` plus
@@ -129,11 +136,18 @@ benannt statt geglättet:
    `llm.effort: low` hält die Denktiefe und damit die Streuung tief.
 
 3. **Gmail-Scope.** Es gibt bei Google keinen Scope, der das Anlegen von
-   Entwürfen ohne Sendefähigkeit erlaubt: `gmail.compose` (ab CP3 nötig)
-   schliesst `messages.send` technisch mit ein. Regel 1 ist deshalb
-   **ausschliesslich code-seitig** garantiert — durch einen `DraftSink`-Port
-   ohne Sendemethode und durch `tests/no-send.test.ts` — nicht durch Google
-   erzwungen. CP1 fordert nur `gmail.readonly` an.
+   Entwürfen ohne Sendefähigkeit erlaubt: `gmail.compose` schliesst die
+   Sendefähigkeit technisch mit ein. Regel 1 ist deshalb **ausschliesslich
+   code-seitig** garantiert — durch einen `DraftSink`-Port ohne Sendemethode
+   und durch `tests/no-send.test.ts`, das den ganzen Quelltext danach absucht
+   — nicht durch Google erzwungen. Angefordert wird nur, was der Lauf
+   braucht: `pnpm ingest` kommt mit `gmail.readonly` aus.
+
+4. **Label-Scope.** Ein Label an eine Mail zu hängen geht nur über
+   `users.messages.modify` und damit über den Scope `gmail.modify`, der
+   deutlich breiter ist als `gmail.compose`. Deshalb steht `gmail.label` in
+   `config/app.yaml` auf `null`: ohne ausdrückliche Konfiguration wird der
+   Scope nie angefordert und kein Label gesetzt.
 
 ## Projektstruktur
 
@@ -146,6 +160,29 @@ src/cli/       Einstiegspunkte
 prompts/       versionierte Prompt-Dateien, Version wandert in jeden Datensatz
 fixtures/      12 synthetische Beispielmails im Gmail-Format
 ```
+
+### Antwortentwürfe
+
+Der Entwurfstext entsteht ohne Modell — aus `profile.yaml` und den
+`missing_fields` der Triage. Damit kann dort per Konstruktion kein
+halluzinierter Preis stehen.
+
+| Lage | Entwurf |
+|---|---|
+| `missing_fields` nicht leer | Rückfrage, die genau diese Angaben abfragt |
+| nichts fehlt | Eingangsbestätigung ohne zugesagten Zeitpunkt |
+| `classification: sonstiges` | kein Entwurf |
+
+Getestet wird das negativ: der Text enthält keine Ziffer, keine Währung und
+kein Fristwort (`innerhalb`, `spätestens`, `garantiert`, …). `anrede` und
+`signatur` in `profile.yaml` steuern Ansprache und Abschluss; ein
+Kapazitätshinweis wird nur übernommen, wenn er dort steht und kein
+unausgefüllter Platzhalter ist.
+
+**Idempotenz:** `drafts.message_id` ist Primärschlüssel. Ein zweiter Lauf
+findet die Zeile und legt nichts Neues an — auch nicht nach drei Läufen. Ein
+Dry-Run-Eintrag wird beim späteren `--write` auf den echten Entwurf
+nachgezogen, ohne eine zweite Zeile zu erzeugen.
 
 ### Umgang mit Modellfehlern
 
@@ -164,7 +201,7 @@ importieren. Ein späterer Wechsel auf IMAP oder Outlook tauscht nur Adapter.
 ## Tests
 
 ```bash
-pnpm test        # 97 Tests, ohne Netzwerk
+pnpm test        # 141 Tests, ohne Netzwerk
 pnpm typecheck
 ```
 

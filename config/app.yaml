@@ -3,6 +3,8 @@ gmail:
   maxResults: 100
   credentialsPath: "config/credentials.json"
   tokenPath: "config/token.json"
+  # Label, das --write auf bearbeitete Mails setzt. Leer lassen = kein Label.
+  label: null
 
 llm:
   # Entscheidung CP0: Anthropic ist Default. Achtung — damit verlassen

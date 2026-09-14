@@ -13,7 +13,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "fixtures:build": "tsx scripts/make-fixtures.ts",
-    "classify": "tsx src/cli/classify.ts"
+    "classify": "tsx src/cli/classify.ts",
+    "draft": "tsx src/cli/draft.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.125.0",

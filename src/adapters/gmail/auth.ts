@@ -4,8 +4,28 @@ import { dirname } from 'node:path';
 import type { AddressInfo } from 'node:net';
 import { OAuth2Client } from 'google-auth-library';
 
-/** CP1 kommt mit read-only aus. gmail.compose kommt erst in CP3 dazu. */
-export const SCOPES_READONLY = ['https://www.googleapis.com/auth/gmail.readonly'];
+export const SCOPE_READONLY = 'https://www.googleapis.com/auth/gmail.readonly';
+/**
+ * Fuer Entwuerfe (users.drafts.create). Google bietet keinen engeren Scope an:
+ * gmail.compose schliesst die Sendefaehigkeit technisch mit ein. Regel 1 ist
+ * deshalb code-seitig garantiert, siehe README und tests/no-send.test.ts.
+ */
+export const SCOPE_COMPOSE = 'https://www.googleapis.com/auth/gmail.compose';
+/** Nur noetig, wenn gmail.label in config/app.yaml gesetzt ist. */
+export const SCOPE_MODIFY = 'https://www.googleapis.com/auth/gmail.modify';
+
+/** Ingest kommt mit Lesen aus. */
+export const SCOPES_READONLY = [SCOPE_READONLY];
+/** Ingest plus Entwuerfe. */
+export const SCOPES_DRAFT = [SCOPE_READONLY, SCOPE_COMPOSE];
+/** Zusaetzlich Labels setzen. */
+export const SCOPES_DRAFT_LABEL = [SCOPE_READONLY, SCOPE_COMPOSE, SCOPE_MODIFY];
+
+/** Welche Scopes ein Lauf braucht. */
+export function scopesFor(opts: { drafts: boolean; label: boolean }): string[] {
+  if (!opts.drafts) return SCOPES_READONLY;
+  return opts.label ? SCOPES_DRAFT_LABEL : SCOPES_DRAFT;
+}
 
 interface InstalledCredentials {
   installed?: { client_id: string; client_secret: string };

@@ -8,6 +8,11 @@ export const AppConfig = z.object({
     maxResults: z.number().int().positive().max(500).default(100),
     credentialsPath: z.string().default('config/credentials.json'),
     tokenPath: z.string().default('config/token.json'),
+    /**
+     * Label, das --write auf bearbeitete Mails setzt. null: kein Label.
+     * Bewusst leer, bis das ausdruecklich gewuenscht ist.
+     */
+    label: z.string().nullable().default(null),
   }).default({}),
 
   llm: z.object({
@@ -58,6 +63,10 @@ export const ProfileConfig = z.object({
   kapazitaet: z.string().nullable().default(null),
   /** null bedeutet ausdruecklich: keine Preise hinterlegt. Nie erfinden. */
   preisliste: z.array(z.object({ leistung: z.string(), preis: z.string() })).nullable().default(null),
+  /** Wie der Entwurf den Absender anspricht. */
+  anrede: z.enum(['sie', 'du']).default('sie'),
+  /** Signaturblock unter dem Entwurf. Leer: Name und Ort aus betrieb. */
+  signatur: z.string().nullable().default(null),
   vipAbsender: z.array(z.string()).default([]),
   ausschluss: z.object({
     absender: z.array(z.string()).default([]),

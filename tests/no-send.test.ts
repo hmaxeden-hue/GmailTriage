@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { SCOPES_READONLY } from '../src/adapters/gmail/auth.js';
+import {
+  SCOPES_DRAFT,
+  SCOPES_DRAFT_LABEL,
+  SCOPES_READONLY,
+  scopesFor,
+} from '../src/adapters/gmail/auth.js';
 
 /**
  * Harte Regel 1: Ausgehende Mails entstehen ausschliesslich als Entwurf.
@@ -23,8 +28,8 @@ const FORBIDDEN: Array<{ pattern: RegExp; why: string }> = [
   { pattern: /\bmessages\s*\.\s*send\b/, why: 'Gmail users.messages.send' },
   { pattern: /\bdrafts\s*\.\s*send\b/, why: 'Gmail users.drafts.send' },
   { pattern: /\bsendMessage\b/, why: 'Sendeaufruf' },
-  { pattern: /gmail\.send\b/, why: 'Sende-Scope' },
-  { pattern: /gmail\.modify\b/, why: 'Scope mit Sendewirkung' },
+  { pattern: /auth\/gmail\.send\b/, why: 'Sende-Scope' },
+  { pattern: /mail\.google\.com/, why: 'Vollzugriff-Scope' },
 ];
 
 describe('niemals senden', () => {
@@ -41,8 +46,39 @@ describe('niemals senden', () => {
     });
   }
 
-  it('fordert in CP1 nur den Lese-Scope an', () => {
+  it('fordert ohne Entwürfe nur den Lese-Scope an', () => {
     expect(SCOPES_READONLY).toEqual(['https://www.googleapis.com/auth/gmail.readonly']);
+    expect(scopesFor({ drafts: false, label: false })).toEqual(SCOPES_READONLY);
+    expect(scopesFor({ drafts: false, label: true })).toEqual(SCOPES_READONLY);
+  });
+
+  it('nimmt für Entwürfe genau gmail.compose dazu', () => {
+    expect(SCOPES_DRAFT).toEqual([
+      'https://www.googleapis.com/auth/gmail.readonly',
+      'https://www.googleapis.com/auth/gmail.compose',
+    ]);
+    expect(scopesFor({ drafts: true, label: false })).toEqual(SCOPES_DRAFT);
+  });
+
+  it('fordert den breiteren Label-Scope nur an, wenn ein Label konfiguriert ist', () => {
+    expect(SCOPES_DRAFT_LABEL).toContain('https://www.googleapis.com/auth/gmail.modify');
+    expect(scopesFor({ drafts: true, label: true })).toEqual(SCOPES_DRAFT_LABEL);
+    expect(scopesFor({ drafts: true, label: false })).not.toContain(
+      'https://www.googleapis.com/auth/gmail.modify',
+    );
+  });
+
+  it('keine Scope-Liste enthält einen ausdrücklichen Sende-Scope', () => {
+    for (const list of [SCOPES_READONLY, SCOPES_DRAFT, SCOPES_DRAFT_LABEL]) {
+      expect(list).not.toContain('https://www.googleapis.com/auth/gmail.send');
+      expect(list).not.toContain('https://mail.google.com/');
+    }
+  });
+
+  it('der Entwurfs-Adapter ruft drafts.create und nichts mit send', () => {
+    const src = readFileSync('src/adapters/gmail/draft.ts', 'utf8');
+    expect(src).toContain('users.drafts.create');
+    expect(src).not.toMatch(/\.send\s*\(/);
   });
 
   it('der DraftSink-Port bietet keine Sendemethode an', () => {
