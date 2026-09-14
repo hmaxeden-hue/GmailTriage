@@ -1,0 +1,37 @@
+{
+  "id": "fix-01",
+  "threadId": "fix-01",
+  "labelIds": [
+    "INBOX",
+    "UNREAD"
+  ],
+  "internalDate": "1789358400000",
+  "payload": {
+    "mimeType": "text/plain",
+    "headers": [
+      {
+        "name": "From",
+        "value": "Martina Rüegg <m.rueegg@example.ch>"
+      },
+      {
+        "name": "To",
+        "value": "Betrieb <betrieb@example.ch>"
+      },
+      {
+        "name": "Subject",
+        "value": "Offerte Renovation Wohnung Emmenbrücke"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<fix-01@mail.example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Mon, 14 Sep 2026 04:00:00 GMT"
+      }
+    ],
+    "body": {
+      "data": "R3V0ZW4gVGFnCgp3aXIgbcO2Y2h0ZW4gdW5zZXJlIDMuNS1aaW1tZXItV29obnVuZyBpbiBFbW1lbmJyw7xja2UgcmVub3ZpZXJlbiBsYXNzZW4KdW5kIGJpdHRlbiBTaWUgdW0gZWluZSBPZmZlcnRlLgoKT2JqZWt0OiBXb2hudW5nIGltIDIuIE9HLCBCYXVqYWhyIDE5OTQsIGNhLiA3OCBtMiwgYWt0dWVsbCBiZXdvaG50LgpHZXfDvG5zY2h0ZXIgWmVpdHJhdW06IEphbnVhciBiaXMgRmVicnVhciAyMDI3LgpCdWRnZXRyYWhtZW46IHJ1bmQgMjAnMDAwIGJpcyAyNScwMDAgRnJhbmtlbi4KCkVycmVpY2hiYXIgYmluIGljaCB1bnRlciAwNDEgNTU1IDIyIDExLgoKRnJldW5kbGljaGUgR3LDvHNzZQpNYXJ0aW5hIFLDvGVnZwpTZWVzdHJhc3NlIDEyLCA2MDIwIEVtbWVuYnLDvGNrZQptLnJ1ZWVnZ0BleGFtcGxlLmNo"
+    }
+  }
+}

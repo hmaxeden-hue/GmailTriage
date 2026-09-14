@@ -1,0 +1,37 @@
+{
+  "id": "fix-09",
+  "threadId": "fix-09",
+  "labelIds": [
+    "INBOX",
+    "UNREAD"
+  ],
+  "internalDate": "1789275600000",
+  "payload": {
+    "mimeType": "text/plain",
+    "headers": [
+      {
+        "name": "From",
+        "value": "R. Hunziker <kontakt@vip-verwaltung.example>"
+      },
+      {
+        "name": "To",
+        "value": "Betrieb <betrieb@example.ch>"
+      },
+      {
+        "name": "Subject",
+        "value": "Kurze Rückfrage Mieterwechsel"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<fix-09@mail.example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Sun, 13 Sep 2026 05:00:00 GMT"
+      }
+    ],
+    "body": {
+      "data": "R3V0ZW4gVGFnCgplaW5lIHVuc2VyZXIgV29obnVuZ2VuIHdpcmQgcGVyIEVuZGUgTW9uYXQgZnJlaS4gS8O2bm5lbiBTaWUgdm9yaGVyIG5vY2gKdm9yYmVpa29tbWVuPyBFcyBnZWh0IG51ciB1bSBlaW5lIEVpbnNjaMOkdHp1bmcsIG5pY2h0cyBHcm9zc2VzLgoKQmVzdGVuIERhbmsKUi4gSHVuemlrZXI"
+    }
+  }
+}

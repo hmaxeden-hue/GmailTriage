@@ -1,0 +1,26 @@
+gmail:
+  query: "is:unread -category:promotions -category:social"
+  maxResults: 100
+  credentialsPath: "config/credentials.json"
+  tokenPath: "config/token.json"
+
+llm:
+  # Entscheidung CP0: Anthropic ist Default. Achtung — damit verlassen
+  # vollstaendige Mail-Inhalte den Rechner (siehe README, Abschnitt
+  # "Externe Endpunkte"). Fuer rein lokalen Betrieb auf openai-compatible
+  # mit baseUrl http://localhost:1234/v1 (LM Studio) umstellen.
+  provider: anthropic
+  model: ""          # wird in CP2 gesetzt
+  temperature: 0.1
+  maxTokens: 1500
+
+ingest:
+  maxBodyChars: 8000
+  defaultSince: "7d"
+
+telegram:
+  enabled: false     # Feature-Flag, Default aus
+
+storage:
+  dbPath: "data/triage.db"
+  outDir: "out"

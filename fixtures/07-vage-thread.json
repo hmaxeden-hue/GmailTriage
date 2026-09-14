@@ -1,0 +1,37 @@
+{
+  "id": "fix-07",
+  "threadId": "thread-07",
+  "labelIds": [
+    "INBOX",
+    "UNREAD"
+  ],
+  "internalDate": "1789196400000",
+  "payload": {
+    "mimeType": "text/plain",
+    "headers": [
+      {
+        "name": "From",
+        "value": "Lukas Odermatt <l.odermatt@example.ch>"
+      },
+      {
+        "name": "To",
+        "value": "Betrieb <betrieb@example.ch>"
+      },
+      {
+        "name": "Subject",
+        "value": "Re: Ihre Anfrage"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<fix-07@mail.example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Sat, 12 Sep 2026 07:00:00 GMT"
+      }
+    ],
+    "body": {
+      "data": "SmEgZ2VuYXUsIHNvIGhhdHRlIGljaCBkYXMgZ2VtZWludC4gUGFzc3QgZGFzIGJlaSBJaG5lbj8KCkFtIDEyLiBTZXB0ZW1iZXIgMjAyNiB1bSAxNDowMyBzY2hyaWViIEJldHJpZWIgPGJldHJpZWJAZXhhbXBsZS5jaD46Cj4gR3V0ZW4gVGFnIEhlcnIgT2Rlcm1hdHQKPiBtZWluZW4gU2llIGRpZSBBcmJlaXRlbiBpbSBFcmRnZXNjaG9zcyBvZGVyIGltIGdhbnplbiBIYXVzPwo-Cj4gRnJldW5kbGljaGUgR3LDvHNzZQ"
+    }
+  }
+}

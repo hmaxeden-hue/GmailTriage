@@ -1,0 +1,37 @@
+{
+  "id": "fix-04",
+  "threadId": "fix-04",
+  "labelIds": [
+    "INBOX",
+    "UNREAD"
+  ],
+  "internalDate": "1789365600000",
+  "payload": {
+    "mimeType": "text/plain",
+    "headers": [
+      {
+        "name": "From",
+        "value": "Peter Amrein <p.amrein@example.ch>"
+      },
+      {
+        "name": "To",
+        "value": "Betrieb <betrieb@example.ch>"
+      },
+      {
+        "name": "Subject",
+        "value": "DRINGEND - Schaden, brauche heute noch Rückmeldung"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<fix-04@mail.example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Mon, 14 Sep 2026 06:00:00 GMT"
+      }
+    ],
+    "body": {
+      "data": "R3V0ZW4gTW9yZ2VuCgpiZWkgdW5zIGltIEhhdXMgYW4gZGVyIEJhaG5ob2ZzdHJhc3NlIDQgaW4gTHV6ZXJuIGlzdCBoZXV0ZSBOYWNodCBlaW4KU2NoYWRlbiBhdWZnZXRyZXRlbi4gV2lyIGJyYXVjaGVuIHNvIHNjaG5lbGwgd2llIG3DtmdsaWNoIGplbWFuZGVuIHZvciBPcnQsCmlkZWFsZXJ3ZWlzZSBoZXV0ZSBub2NoLgoKQml0dGUgcnVmZW4gU2llIG1pY2ggYW46IDA3NiA0NDQgNTUgNjYKClBldGVyIEFtcmVpbg"
+    }
+  }
+}

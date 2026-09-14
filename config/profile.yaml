@@ -1,0 +1,31 @@
+# Betriebsprofil. Alles in «...» bleibt stehen, bis du es fuellst.
+# Die Triage nutzt nur, was hier steht — sie erfindet nichts dazu.
+
+betrieb:
+  name: "«Betriebsname»"
+  gewerk: "«Gewerk»"
+  ort: "«Ort»"
+  email: "«Gmail-Adresse»"
+  telefon: null
+
+leistungen: []
+  # - "«Leistung 1»"
+
+einzugsgebiet: []
+  # - "«Ort/Region»"
+
+kapazitaet: null
+  # z.B. "aktuell ausgebucht bis KW «xx»"
+
+# null = keine Preise hinterlegt. Der Antwortentwurf nennt dann nie Zahlen.
+preisliste: null
+
+# Absender, deren Anfragen mindestens Dringlichkeit "hoch" bekommen.
+vipAbsender: []
+  # - "«VIP-Absender»"
+
+# Wird vor dem LLM-Call aussortiert — spart Tokens und Datenabfluss.
+ausschluss:
+  absender: []
+  domains: []
+  betreffMuster: []

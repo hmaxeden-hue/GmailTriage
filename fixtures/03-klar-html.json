@@ -1,0 +1,42 @@
+{
+  "id": "fix-03",
+  "threadId": "fix-03",
+  "labelIds": [
+    "INBOX",
+    "UNREAD"
+  ],
+  "internalDate": "1789297200000",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      {
+        "name": "From",
+        "value": "\"Sandra Bieri\" <sandra.bieri@example.org>"
+      },
+      {
+        "name": "To",
+        "value": "Betrieb <betrieb@example.ch>"
+      },
+      {
+        "name": "Subject",
+        "value": "Kostenvoranschlag gewünscht"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<fix-03@mail.example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Sun, 13 Sep 2026 11:00:00 GMT"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/html",
+        "body": {
+          "data": "PGh0bWw-PGhlYWQ-PHN0eWxlPnB7bWFyZ2luOjB9PC9zdHlsZT48L2hlYWQ-PGJvZHk-CjxwPkd1dGVuIFRhZzwvcD4KPHA-ayZvdW1sO25uZW4gU2llIG1pciBlaW5lbiBLb3N0ZW52b3JhbnNjaGxhZyBlcnN0ZWxsZW4gZiZ1dW1sO3IgZGllIEFyYmVpdGVuCmFuIHVuc2VyZW0gUmVpaGVuaGF1cyBpbiBIb3J3PzwvcD4KPHVsPjxsaT5GbCZhdW1sO2NoZSBjYS4gMTIwIG0mc3VwMjs8L2xpPjxsaT5PYmpla3Qgc3RlaHQgbGVlcjwvbGk-PGxpPkF1c2YmdXVtbDtocnVuZyBpbSBGciZ1dW1sO2hsaW5nPC9saT48L3VsPgo8cD5GcmV1bmRsaWNoZSBHciZ1dW1sO3NzZTxicj5TYW5kcmEgQmllcmk8YnI-MDc5IDExMSAyMiAzMzwvcD4KPC9ib2R5PjwvaHRtbD4"
+        }
+      }
+    ]
+  }
+}

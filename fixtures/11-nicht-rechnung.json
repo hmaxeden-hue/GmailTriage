@@ -1,0 +1,49 @@
+{
+  "id": "fix-11",
+  "threadId": "fix-11",
+  "labelIds": [
+    "INBOX",
+    "UNREAD"
+  ],
+  "internalDate": "1789315200000",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      {
+        "name": "From",
+        "value": "Debitoren <buchhaltung@lieferant.example>"
+      },
+      {
+        "name": "To",
+        "value": "Betrieb <betrieb@example.ch>"
+      },
+      {
+        "name": "Subject",
+        "value": "Rechnung 2026-4471 fällig"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<fix-11@mail.example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Sun, 13 Sep 2026 16:00:00 GMT"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/plain",
+        "body": {
+          "data": "U2VociBnZWVocnRlIERhbWVuIHVuZCBIZXJyZW4KCmFuYmVpIGRpZSBSZWNobnVuZyAyMDI2LTQ0NzEgw7xiZXIgQ0hGIDEnMjg0LjUwLCBmw6RsbGlnIHBlciAzMCBUYWdlIG5ldHRvLgoKLS0tLS1VcnNwcsO8bmdsaWNoZSBOYWNocmljaHQtLS0tLQpWb246IERlYml0b3JlbiA8YnVjaGhhbHR1bmdAbGllZmVyYW50LmV4YW1wbGU-Ckdlc2VuZGV0OiBNb250YWcsIDEuIFNlcHRlbWJlciAyMDI2IDA4OjAwCkFuOiBCZXRyaWViCkJldHJlZmY6IExpZWZlcnNjaGVpbgoKQW5iZWkgZGVyIExpZWZlcnNjaGVpbi4"
+        }
+      },
+      {
+        "mimeType": "application/pdf",
+        "filename": "rechnung-2026-4471.pdf",
+        "body": {
+          "attachmentId": "att-1"
+        }
+      }
+    ]
+  }
+}
