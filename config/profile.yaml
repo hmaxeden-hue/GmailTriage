@@ -20,6 +20,12 @@ kapazitaet: null
 # null = keine Preise hinterlegt. Der Antwortentwurf nennt dann nie Zahlen.
 preisliste: null
 
+# Ansprache im Antwortentwurf: sie oder du.
+anrede: sie
+
+# Signaturblock unter dem Entwurf. null: Name und Ort aus "betrieb".
+signatur: null
+
 # Absender, deren Anfragen mindestens Dringlichkeit "hoch" bekommen.
 vipAbsender: []
   # - "«VIP-Absender»"
