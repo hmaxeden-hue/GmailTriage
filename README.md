@@ -201,7 +201,7 @@ importieren. Ein späterer Wechsel auf IMAP oder Outlook tauscht nur Adapter.
 ## Tests
 
 ```bash
-pnpm test        # 141 Tests, ohne Netzwerk
+pnpm test        # 143 Tests, ohne Netzwerk
 pnpm typecheck
 ```
 

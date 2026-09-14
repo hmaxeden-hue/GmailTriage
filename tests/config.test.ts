@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseSince } from '../src/config/load.js';
+import { loadAppConfig, loadProfile, parseSince } from '../src/config/load.js';
 import { AppConfig, ProfileConfig, isPlaceholder } from '../src/config/schema.js';
 
 describe('parseSince', () => {
@@ -40,5 +40,22 @@ describe('ProfileConfig', () => {
     expect(isPlaceholder('«Gewerk»')).toBe(true);
     expect(isPlaceholder('Schreinerei')).toBe(false);
     expect(isPlaceholder(null)).toBe(false);
+  });
+});
+
+describe('die ausgelieferten Config-Dateien', () => {
+  it('config/app.yaml parst und hält den Dry-Run-Default', () => {
+    const cfg = loadAppConfig('config/app.yaml');
+    expect(cfg.telegram.enabled).toBe(false);
+    expect(cfg.gmail.label).toBeNull();
+    expect(cfg.llm.model).not.toBe('');
+  });
+
+  it('config/profile.yaml parst und lässt die Platzhalter stehen', () => {
+    const p = loadProfile('config/profile.yaml');
+    expect(p.betrieb.gewerk).toBe('«Gewerk»');
+    expect(p.preisliste).toBeNull();
+    expect(p.anrede).toBe('sie');
+    expect(p.signatur).toBeNull();
   });
 });
