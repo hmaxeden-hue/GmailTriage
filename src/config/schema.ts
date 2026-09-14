@@ -15,8 +15,16 @@ export const AppConfig = z.object({
     /** Wird in CP2 gesetzt und befuellt; hier bewusst noch leer. */
     model: z.string().default(''),
     baseUrl: z.string().optional(),
+    /**
+     * Wird nur an Modelle gereicht, die Sampling noch unterstuetzen.
+     * Anthropic-Modelle ab der 4.7-Generation lehnen den Parameter ab.
+     */
     temperature: z.number().min(0).max(1).default(0.1),
-    maxTokens: z.number().int().positive().default(1500),
+    maxTokens: z.number().int().positive().default(4000),
+    /** Denktiefe bei Anthropic. Klassifikation kommt mit low aus. */
+    effort: z.enum(['low', 'medium', 'high', 'xhigh', 'max']).default('low'),
+    /** Serverseitiger Ausweichpfad, falls das Modell eine Mail ablehnt. */
+    refusalFallback: z.boolean().default(true),
   }).default({}),
 
   ingest: z.object({

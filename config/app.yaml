@@ -10,9 +10,14 @@ llm:
   # "Externe Endpunkte"). Fuer rein lokalen Betrieb auf openai-compatible
   # mit baseUrl http://localhost:1234/v1 (LM Studio) umstellen.
   provider: anthropic
-  model: ""          # wird in CP2 gesetzt
+  model: "claude-opus-5"
+  # temperature wird nur an Modelle gereicht, die Sampling noch annehmen.
+  # claude-opus-5 und die uebrige 4.7+-Generation lehnen den Parameter ab
+  # (HTTP 400) — siehe README, Abschnitt "Temperatur 0.1".
   temperature: 0.1
-  maxTokens: 1500
+  maxTokens: 4000
+  effort: low          # Denktiefe; Klassifikation kommt mit low aus
+  refusalFallback: true
 
 ingest:
   maxBodyChars: 8000

@@ -1,4 +1,4 @@
-import type { MessageRef, NormalizedMessage, RawMessage } from './types.js';
+import type { MessageRef, NormalizedMessage, RawMessage, TriageRecord } from './types.js';
 
 /**
  * Ports. core/ definiert sie, adapters/ implementiert sie.
@@ -55,4 +55,11 @@ export interface MessageStore {
 export interface RunStore {
   startRun(r: { startedAt: number; sinceArg: string; writeMode: boolean; model: string | null }): number;
   finishRun(id: number, r: { finishedAt: number; counts: Record<string, number>; exitCode: number }): void;
+}
+
+export interface TriageStore {
+  insertTriage(t: TriageRecord): number;
+  /** Juengster Datensatz zu einer Mail, oder null. Basis der Re-Run-Logik. */
+  latestTriage(messageId: string): TriageRecord | null;
+  listTriage(since: Date): TriageRecord[];
 }

@@ -46,3 +46,29 @@ export interface NormalizedMessage {
   truncated: boolean;
   ingestedAt: number;
 }
+
+/** Ein Triage-Ergebnis, wie es in SQLite landet. */
+export interface TriageRecord {
+  messageId: string;
+  classification: 'offertanfrage' | 'bestandskunde' | 'sonstiges';
+  urgency: 'hoch' | 'normal' | 'niedrig';
+  /** Woher die Dringlichkeit stammt — die VIP-Whitelist hebt sie an. */
+  urgencySource: 'llm' | 'vip_override';
+  senderName: string | null;
+  contact: string | null;
+  location: string | null;
+  service: string | null;
+  desiredDate: string | null;
+  objectInfo: string | null;
+  budgetHint: string | null;
+  missingFields: string[];
+  /** Immer needs_human_review. Die Freigabe macht der Mensch. */
+  status: 'needs_human_review';
+  confidence: number;
+  reasoning: string | null;
+  provider: string;
+  model: string;
+  promptVersion: string;
+  repairUsed: boolean;
+  createdAt: number;
+}

@@ -1,5 +1,5 @@
-import type { MessageStore, RunStore } from '../../core/ports.js';
-import type { NormalizedMessage } from '../../core/types.js';
+import type { MessageStore, RunStore, TriageStore } from '../../core/ports.js';
+import type { NormalizedMessage, TriageRecord } from '../../core/types.js';
 import type { Db } from './db.js';
 
 interface MessageRow {
@@ -116,5 +116,117 @@ export class SqliteStore implements MessageStore, RunStore {
     this.db
       .prepare('UPDATE runs SET finished_at = ?, counts_json = ?, exit_code = ? WHERE id = ?')
       .run(r.finishedAt, JSON.stringify(r.counts), r.exitCode, id);
+  }
+}
+
+interface TriageRow {
+  message_id: string;
+  classification: TriageRecord['classification'];
+  urgency: TriageRecord['urgency'];
+  urgency_source: TriageRecord['urgencySource'];
+  sender_name: string | null;
+  contact: string | null;
+  location: string | null;
+  service: string | null;
+  desired_date: string | null;
+  object_info: string | null;
+  budget_hint: string | null;
+  missing_fields_json: string;
+  status: 'needs_human_review';
+  confidence: number;
+  reasoning: string | null;
+  provider: string;
+  model: string;
+  prompt_version: string;
+  repair_used: number;
+  created_at: number;
+}
+
+function toTriage(r: TriageRow): TriageRecord {
+  return {
+    messageId: r.message_id,
+    classification: r.classification,
+    urgency: r.urgency,
+    urgencySource: r.urgency_source,
+    senderName: r.sender_name,
+    contact: r.contact,
+    location: r.location,
+    service: r.service,
+    desiredDate: r.desired_date,
+    objectInfo: r.object_info,
+    budgetHint: r.budget_hint,
+    missingFields: JSON.parse(r.missing_fields_json) as string[],
+    status: r.status,
+    confidence: r.confidence,
+    reasoning: r.reasoning,
+    provider: r.provider,
+    model: r.model,
+    promptVersion: r.prompt_version,
+    repairUsed: r.repair_used === 1,
+    createdAt: r.created_at,
+  };
+}
+
+/** Triage-Ergebnisse werden angehaengt, nie ueberschrieben — die Historie bleibt lesbar. */
+export class SqliteTriageStore implements TriageStore {
+  constructor(private readonly db: Db) {}
+
+  insertTriage(t: TriageRecord): number {
+    const info = this.db
+      .prepare(
+        `INSERT INTO triage_results (message_id, classification, urgency, urgency_source,
+           sender_name, contact, location, service, desired_date, object_info, budget_hint,
+           missing_fields_json, status, confidence, reasoning, provider, model,
+           prompt_version, repair_used, created_at)
+         VALUES (@message_id, @classification, @urgency, @urgency_source,
+           @sender_name, @contact, @location, @service, @desired_date, @object_info, @budget_hint,
+           @missing_fields_json, @status, @confidence, @reasoning, @provider, @model,
+           @prompt_version, @repair_used, @created_at)`,
+      )
+      .run({
+        message_id: t.messageId,
+        classification: t.classification,
+        urgency: t.urgency,
+        urgency_source: t.urgencySource,
+        sender_name: t.senderName,
+        contact: t.contact,
+        location: t.location,
+        service: t.service,
+        desired_date: t.desiredDate,
+        object_info: t.objectInfo,
+        budget_hint: t.budgetHint,
+        missing_fields_json: JSON.stringify(t.missingFields),
+        status: t.status,
+        confidence: t.confidence,
+        reasoning: t.reasoning,
+        provider: t.provider,
+        model: t.model,
+        prompt_version: t.promptVersion,
+        repair_used: t.repairUsed ? 1 : 0,
+        created_at: t.createdAt,
+      });
+    return Number(info.lastInsertRowid);
+  }
+
+  latestTriage(messageId: string): TriageRecord | null {
+    const row = this.db
+      .prepare(
+        'SELECT * FROM triage_results WHERE message_id = ? ORDER BY created_at DESC, id DESC LIMIT 1',
+      )
+      .get(messageId) as TriageRow | undefined;
+    return row ? toTriage(row) : null;
+  }
+
+  listTriage(since: Date): TriageRecord[] {
+    const rows = this.db
+      .prepare(
+        `SELECT t.* FROM triage_results t
+         JOIN messages m ON m.message_id = t.message_id
+         WHERE m.internal_date >= ?
+           AND t.id = (SELECT MAX(id) FROM triage_results x WHERE x.message_id = t.message_id)
+         ORDER BY m.internal_date DESC`,
+      )
+      .all(since.getTime()) as TriageRow[];
+    return rows.map(toTriage);
   }
 }

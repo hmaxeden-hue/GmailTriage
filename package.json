@@ -12,9 +12,11 @@
     "anonymize": "tsx scripts/anonymize.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "fixtures:build": "tsx scripts/make-fixtures.ts"
+    "fixtures:build": "tsx scripts/make-fixtures.ts",
+    "classify": "tsx src/cli/classify.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.125.0",
     "@googleapis/gmail": "^12.0.0",
     "better-sqlite3": "^11.7.0",
     "google-auth-library": "^9.15.0",

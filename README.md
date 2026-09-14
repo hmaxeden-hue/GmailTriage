@@ -4,7 +4,7 @@ Lokal laufender Prototyp: liest das eigene Gmail-Postfach, erkennt Offert-
 anfragen, erfasst sie strukturiert und bereitet einen Antwortentwurf vor.
 Die Freigabe macht immer der Mensch.
 
-**Stand: CP1 (Ingest).** Klassifikation, Entwürfe und Digest folgen in CP2–CP4.
+**Stand: CP2 (Klassifikation).** Entwürfe und Digest folgen in CP3–CP4.
 
 ## Harte Regeln
 
@@ -50,11 +50,25 @@ vom Code nicht interpretiert. `preisliste: null` bedeutet ausdrücklich
 ```bash
 pnpm ingest --fixtures=fixtures --since=3650d   # ohne Gmail, ohne Netzwerk
 pnpm ingest --since=7d                          # gegen das echte Postfach
-pnpm ingest --help
+pnpm classify --since=7d                        # klassifiziert, was im Ingest liegt
+pnpm classify --model=claude-haiku-4-5          # Modell für einen Lauf überschreiben
+pnpm classify --reclassify                      # bereits Eingeordnetes neu bewerten
 ```
 
 Gmail-Filter: `is:unread -category:promotions -category:social` plus
 Zeitfenster aus `--since` (Default 7 Tage).
+
+`pnpm classify` braucht einen Schlüssel in `ANTHROPIC_API_KEY` — oder
+`llm.provider: openai-compatible` mit einem lokalen Modell.
+
+### Modellwahl und Kosten
+
+`llm.model` in `config/app.yaml` steht auf `claude-opus-5`. Überschlag pro
+Mail: rund 1 500 Eingabe- und 300 Ausgabe-Token, also grob 1,5 Rappen. Bei
+30 Mails am Tag sind das etwa 13 Franken im Monat, mit Prompt-Caching weniger.
+`claude-haiku-4-5` kostet etwa ein Fünftel davon und reicht für einfache
+Einordnung womöglich aus — das ist eine Messfrage, keine Annahme. Der Wechsel
+ist eine Zeile in der Config oder ein `--model=`-Argument.
 
 ## Datenfluss
 
@@ -98,9 +112,23 @@ benannt statt geglättet:
 1. **LLM-Call.** Mit `llm.provider: anthropic` (aktueller Default in
    `config/app.yaml`) verlassen vollständige Mail-Inhalte den Rechner Richtung
    USA. Wirklich lokal läuft nur `llm.provider: openai-compatible` mit
-   `baseUrl: http://localhost:1234/v1` gegen LM Studio. Beide Pfade werden
+   `baseUrl: http://localhost:1234/v1` gegen LM Studio. Beide Pfade sind
    gebaut, die Wahl steht in der Config, nicht im Code.
-2. **Gmail-Scope.** Es gibt bei Google keinen Scope, der das Anlegen von
+   **Auch der Dry-Run sendet.** Regel 3 sagt „ohne `--write` wirkt kein Lauf
+   nach aussen"; Regel 4 erlaubt den LLM-Call ausdrücklich. Beides zusammen
+   heisst: `pnpm classify` überträgt Mailtexte auch ohne `--write`. Der Lauf
+   sagt das vor dem ersten Call auf stdout an. Wer das nicht will, stellt auf
+   den lokalen Anbieter um.
+2. **Temperatur 0.1.** Die Vorgabe lässt sich mit `claude-opus-5` nicht
+   erfüllen: Anthropic hat die Sampling-Parameter ab der 4.7-Generation
+   entfernt, `temperature` wird dort mit HTTP 400 abgelehnt. Der Adapter
+   reicht den Wert nur an Modelle weiter, die ihn noch annehmen — etwa
+   `claude-haiku-4-5` oder ein lokales Qwen (`supportsTemperature()` in
+   `src/adapters/llm/anthropic.ts`). Die Reproduzierbarkeit hängt bei den
+   neueren Modellen am Schema und am Prompt, nicht an einem Sampling-Wert.
+   `llm.effort: low` hält die Denktiefe und damit die Streuung tief.
+
+3. **Gmail-Scope.** Es gibt bei Google keinen Scope, der das Anlegen von
    Entwürfen ohne Sendefähigkeit erlaubt: `gmail.compose` (ab CP3 nötig)
    schliesst `messages.send` technisch mit ein. Regel 1 ist deshalb
    **ausschliesslich code-seitig** garantiert — durch einen `DraftSink`-Port
@@ -115,9 +143,20 @@ src/adapters/  gmail, sqlite, llm, telegram — austauschbar hinter Ports
 src/pipeline/  Orchestrierung der Abläufe
 src/config/    Zod-validierte YAML-Konfiguration
 src/cli/       Einstiegspunkte
-prompts/       versionierte Prompt-Dateien (ab CP2)
+prompts/       versionierte Prompt-Dateien, Version wandert in jeden Datensatz
 fixtures/      12 synthetische Beispielmails im Gmail-Format
 ```
+
+### Umgang mit Modellfehlern
+
+| Fall | Verhalten |
+|---|---|
+| Antwort verletzt das Schema | genau ein Repair-Versuch mit den konkreten Zod-Fehlern |
+| auch der Repair scheitert | Datensatz mit `confidence: 0` und `reasoning: schema_error: …` — die Mail bleibt sichtbar |
+| Modell erfindet ein Feld (z.B. einen Preis) | `.strict()` bricht die Validierung, Repair greift |
+| einzelner Netzwerkfehler | betrifft nur diese Mail, der Lauf geht weiter |
+| ungültiger Schlüssel, unbekanntes Modell | Lauf bricht nach dem ersten Call ab statt N-mal anzuklopfen |
+| Modell lehnt eine Mail ab | serverseitiger Ausweichpfad (`refusalFallback`), sonst Fallback-Datensatz |
 
 Die Schichtentrennung wird getestet: `core/` darf nichts aus `adapters/`
 importieren. Ein späterer Wechsel auf IMAP oder Outlook tauscht nur Adapter.
@@ -125,9 +164,13 @@ importieren. Ein späterer Wechsel auf IMAP oder Outlook tauscht nur Adapter.
 ## Tests
 
 ```bash
-pnpm test        # 46 Tests, ohne Netzwerk
+pnpm test        # 97 Tests, ohne Netzwerk
 pnpm typecheck
 ```
+
+Die Tests prüfen die Verdrahtung — Schema, Repair-Pfad, VIP-Override,
+Idempotenz, Persistenz —, nicht die Urteilsqualität eines Modells. Dafür
+braucht es einen Lauf gegen echte Mails.
 
 Fixtures neu erzeugen: `pnpm fixtures:build`.
 Eigene Mails anonymisieren: `pnpm anonymize roh.json fixtures/13-eigene.json`
@@ -140,4 +183,5 @@ Offert-PDF.
 
 ### Später
 
-Thread-Verlauf als LLM-Kontext, Duplikaterkennung, Kostentracking pro Lauf.
+Thread-Verlauf als LLM-Kontext, Duplikaterkennung, Kostentracking pro Lauf,
+`output_config.format` für schemagarantierte Antworten statt Repair-Versuch.
