@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "fixtures:build": "tsx scripts/make-fixtures.ts",
     "classify": "tsx src/cli/classify.ts",
-    "draft": "tsx src/cli/draft.ts"
+    "draft": "tsx src/cli/draft.ts",
+    "triage": "tsx src/cli/triage.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.125.0",

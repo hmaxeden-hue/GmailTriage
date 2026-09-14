@@ -84,3 +84,9 @@ export interface DraftStore {
   replaceDryRunDraft(d: DraftRecord): boolean;
   getDraft(messageId: string): DraftRecord | null;
 }
+
+export interface NotificationStore {
+  /** false, wenn zu dieser Mail und diesem Kanal schon etwas hinausging. */
+  markNotified(messageId: string, channel: string, sentAt: number, dryRun: boolean): boolean;
+  wasNotified(messageId: string, channel: string): boolean;
+}

@@ -103,7 +103,13 @@ export class NoopDraftSink implements DraftSink {
     return null;
   }
 
-  async createReplyDraft(input: { threadId: string; subject: string }): Promise<{ draftId: string }> {
+  async createReplyDraft(input: {
+    threadId: string;
+    inReplyTo: string | null;
+    to: string;
+    subject: string;
+    body: string;
+  }): Promise<{ draftId: string }> {
     this.created.push({ threadId: input.threadId, subject: input.subject });
     return { draftId: '' };
   }

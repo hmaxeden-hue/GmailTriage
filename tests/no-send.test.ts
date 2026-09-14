@@ -24,10 +24,20 @@ function sourceFiles(dir: string): string[] {
   return out;
 }
 
-const FORBIDDEN: Array<{ pattern: RegExp; why: string }> = [
+/**
+ * Das Verbot gilt dem Mailversand. Der Telegram-Push ist ausdruecklich
+ * vorgesehen (Feature-Flag, Default aus) und heisst bei Telegram zufaellig
+ * ebenfalls sendMessage — deshalb die eng gefasste Ausnahme, die ein
+ * eigener Test unten absichert.
+ */
+const FORBIDDEN: Array<{ pattern: RegExp; why: string; exempt?: string[] }> = [
   { pattern: /\bmessages\s*\.\s*send\b/, why: 'Gmail users.messages.send' },
   { pattern: /\bdrafts\s*\.\s*send\b/, why: 'Gmail users.drafts.send' },
-  { pattern: /\bsendMessage\b/, why: 'Sendeaufruf' },
+  {
+    pattern: /\bsendMessage\b/,
+    why: 'Sendeaufruf',
+    exempt: ['src/adapters/telegram/client.ts'],
+  },
   { pattern: /auth\/gmail\.send\b/, why: 'Sende-Scope' },
   { pattern: /mail\.google\.com/, why: 'Vollzugriff-Scope' },
 ];
@@ -39,12 +49,22 @@ describe('niemals senden', () => {
     expect(files.length).toBeGreaterThan(10);
   });
 
-  for (const { pattern, why } of FORBIDDEN) {
+  for (const { pattern, why, exempt } of FORBIDDEN) {
     it(`kein Vorkommen von ${why}`, () => {
-      const hits = files.filter((f) => pattern.test(readFileSync(f, 'utf8')));
+      const hits = files
+        .filter((f) => !(exempt ?? []).includes(f))
+        .filter((f) => pattern.test(readFileSync(f, 'utf8')));
       expect(hits, `${why} gefunden in: ${hits.join(', ')}`).toEqual([]);
     });
   }
+
+  it('die eine Ausnahme betrifft nur Telegram, nicht Gmail', () => {
+    const src = readFileSync('src/adapters/telegram/client.ts', 'utf8');
+    expect(src).toContain('api.telegram.org');
+    expect(src).not.toMatch(/gmail|googleapis/i);
+    // Der Push traegt keinen Mailtext hinaus.
+    expect(src).not.toMatch(/bodyText/);
+  });
 
   it('fordert ohne Entwürfe nur den Lese-Scope an', () => {
     expect(SCOPES_READONLY).toEqual(['https://www.googleapis.com/auth/gmail.readonly']);

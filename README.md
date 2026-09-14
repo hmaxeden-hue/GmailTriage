@@ -4,7 +4,7 @@ Lokal laufender Prototyp: liest das eigene Gmail-Postfach, erkennt Offert-
 anfragen, erfasst sie strukturiert und bereitet einen Antwortentwurf vor.
 Die Freigabe macht immer der Mensch.
 
-**Stand: CP3 (Entwürfe).** Digest und Gesamt-CLI folgen in CP4.
+**Stand: Phase 1 vollständig** (CP0–CP4).
 
 ## Harte Regeln
 
@@ -60,7 +60,21 @@ pnpm classify --model=claude-haiku-4-5          # Modell für einen Lauf übersc
 pnpm classify --reclassify                      # bereits Eingeordnetes neu bewerten
 pnpm draft --since=7d                           # Entwurfstexte berechnen, nichts anlegen
 pnpm draft --since=7d --write                   # Entwürfe bei Gmail anlegen
+
+pnpm run triage --since=7d                      # der Gesamtlauf, Dry-Run
+pnpm run triage --since=7d --write              # mit Entwürfen, Label und Push
+pnpm run triage --fixtures=fixtures --since=30d # gegen Beispielmails statt Gmail
 ```
+
+`pnpm run triage` macht alles in einem: lesen, einordnen, Entwürfe
+vorbereiten, Digest schreiben, bei hoher Dringlichkeit pushen.
+
+| Exit-Code | Bedeutung |
+|---|---|
+| 0 | alles durch |
+| 1 | einzelne Mails fehlgeschlagen, der Rest lief |
+| 2 | Konfiguration unvollständig (z.B. Platzhalter als Absenderadresse) |
+| 3 | Lauf abgebrochen — ungültiger Schlüssel, unbekanntes Modell |
 
 Gmail-Filter: `is:unread -category:promotions -category:social` plus
 Zeitfenster aus `--since` (Default 7 Tage).
@@ -80,27 +94,45 @@ ist eine Zeile in der Config oder ein `--model=`-Argument.
 ## Datenfluss
 
 ```
-                        ┌─────────────────────────────────────┐
-   Gmail API            │            CP1 — Ingest             │
-   (read-only)  ──────► │  list → get → normalize → SQLite    │
-                        │  HTML→Text, Zitate, Signatur        │
-                        └──────────────┬──────────────────────┘
-                                       │  messages
-                                       ▼
-   config/profile.yaml ─────►  ┌───────────────┐
-   config/app.yaml             │  data/triage  │
-                               │     .db       │
-                               └───┬───────────┘
-                                   │
-        ┌──────────────────────────┼───────────────────────────┐
-        │ CP2 — Klassifikation     │ CP3 — Entwurf             │ CP4 — Digest
-        │                          ▼                           ▼
-        │  LlmClient ──► Zod ──► triage_results ──► Gmail-Draft ──► out/digest-*.md
-        │  (extern!)     Repair                     (nie senden)    Telegram (Flag, aus)
-        └───────────────────────────────────────────────────────────────────────────┘
+  Gmail API                 config/profile.yaml
+  (gmail.readonly)          config/app.yaml
+        │                          │
+        ▼                          ▼
+  ┌───────────────┐        ┌───────────────┐
+  │    Ingest     │        │  Ausschluss-  │   Lieferanten, Buchhaltung:
+  │ HTML→Text     │───────►│    prüfung    │──►  raus, bevor ein LLM-Call
+  │ Zitate raus   │        └───────┬───────┘     entsteht
+  │ Signatur ab   │                │
+  └───────┬───────┘                ▼
+          │              ┌─────────────────────┐
+          │              │   LlmClient         │  ← einziger Weg nach draussen,
+          │              │   anthropic │ lokal │    siehe Endpunkttabelle
+          │              └─────────┬───────────┘
+          │                        ▼
+          │              ┌─────────────────────┐
+          │              │ Zod .strict()       │  Bruch → 1 Repair-Versuch
+          │              │ + VIP-Override      │  → sonst Fallback-Datensatz
+          │              └─────────┬───────────┘
+          ▼                        ▼
+  ┌──────────────────────────────────────────┐
+  │            data/triage.db                │   messages · triage_results
+  │         (alles, immer, lokal)            │   drafts · notifications · runs
+  └───┬──────────────┬───────────────┬───────┘
+      │              │               │
+      ▼              ▼               ▼
+  Entwurfstext   out/digest-     Telegram
+  aus Profil +   YYYY-MM-DD.md   (Flag, Default aus)
+  missing_fields      │               │
+      │               │               │
+      ▼               ▼               ▼
+  ╔═══════════════════════════════════════╗
+  ║  nur mit --write                      ║   Gmail-Entwurf · Label · Push
+  ║  Versendet wird nie etwas.            ║
+  ╚═══════════════════════════════════════╝
 ```
 
-Ohne `--write` endet jeder Pfad an der SQLite-Grenze.
+Ohne `--write` endet jeder Pfad an der SQLite-Grenze — ausser dem LLM-Call,
+siehe Konflikt 1 unten.
 
 ## Externe Endpunkte
 
@@ -109,7 +141,7 @@ Ohne `--write` endet jeder Pfad an der SQLite-Grenze.
 | `gmail.googleapis.com` | Mails lesen (CP1), Entwurf anlegen (CP3) | OAuth-Token, Mail-IDs, Mail-Inhalte | Google Ireland Ltd. / Google LLC, EU + USA |
 | `accounts.google.com`, `oauth2.googleapis.com` | einmalige OAuth-Freigabe, Token-Refresh | Client-ID, Autorisierungscode | dieselben |
 | `api.anthropic.com` | Klassifikation und Extraktion (ab CP2) | **vollständiger Mail-Text** inkl. Absenderdaten | Anthropic PBC, USA |
-| `api.telegram.org` | Push bei `urgency=hoch` (ab CP4) | Betreff, Absendername, Dringlichkeit | Telegram FZ-LLC; Serverstandort vor Aktivierung selbst prüfen. Default: aus |
+| `api.telegram.org` | Push bei `urgency=hoch` | Absendername, Betreff, fehlende Angaben — **kein Mailtext** | Telegram FZ-LLC; Serverstandort vor Aktivierung selbst prüfen. Default: aus |
 
 ### Markierte Konflikte
 
@@ -184,6 +216,31 @@ findet die Zeile und legt nichts Neues an — auch nicht nach drei Läufen. Ein
 Dry-Run-Eintrag wird beim späteren `--write` auf den echten Entwurf
 nachgezogen, ohne eine zweite Zeile zu erzeugen.
 
+### Tagesdigest
+
+Geht auf stdout und nach `out/digest-YYYY-MM-DD.md`. Sortiert nach
+Dringlichkeit, je Eintrag zwei Zeilen:
+
+```markdown
+## Dringend
+
+**Peter Amrein** — DRINGEND - Schaden, brauche heute noch Rückmeldung · 14.09., 08:00
+Schadensbehebung · Bahnhofstrasse 4, Luzern · heute noch · fehlt: leistung, objektangaben · Entwurf berechnet (Rückfrage)
+```
+
+`sonstiges` erscheint nur als Zähler in der Kopfzeile. Bricht ein Lauf ab,
+bevor etwas vorliegt, wird die Datei des Tages **nicht** durch eine leere
+ersetzt.
+
+### Telegram-Push
+
+Nur bei `urgency: hoch`, nur mit `--write`, nur wenn `telegram.enabled: true`
+und `TELEGRAM_BOT_TOKEN` sowie `telegram.chatId` gesetzt sind. Fehlt eines
+davon, bleibt der Push stumm und der Lauf sagt warum — ein halb
+konfigurierter Push wäre ein stiller Ausfall. Pro Mail geht höchstens eine
+Nachricht hinaus (`notifications` mit Primärschlüssel aus Message-ID und
+Kanal).
+
 ### Umgang mit Modellfehlern
 
 | Fall | Verhalten |
@@ -201,9 +258,12 @@ importieren. Ein späterer Wechsel auf IMAP oder Outlook tauscht nur Adapter.
 ## Tests
 
 ```bash
-pnpm test        # 143 Tests, ohne Netzwerk
+pnpm test        # 174 Tests, ohne Netzwerk
 pnpm typecheck
 ```
+
+Die Suite fixiert `TZ=Europe/Zurich` — der Digest formatiert in Ortszeit,
+sonst hingen die Erwartungen an der Zone des ausführenden Rechners.
 
 Die Tests prüfen die Verdrahtung — Schema, Repair-Pfad, VIP-Override,
 Idempotenz, Persistenz —, nicht die Urteilsqualität eines Modells. Dafür
@@ -213,12 +273,16 @@ Fixtures neu erzeugen: `pnpm fixtures:build`.
 Eigene Mails anonymisieren: `pnpm anonymize roh.json fixtures/13-eigene.json`
 (läuft lokal; Ergebnis von Hand gegenlesen).
 
-## Noch nicht gebaut (Phase 1 ausgenommen)
+## Bewusst nicht gebaut
 
 Review-Dashboard, Mandantenfähigkeit, Billing, Auto-Versand, Kalender,
-Offert-PDF.
+Offert-PDF. Alles Phase 2 oder später.
 
 ### Später
 
-Thread-Verlauf als LLM-Kontext, Duplikaterkennung, Kostentracking pro Lauf,
-`output_config.format` für schemagarantierte Antworten statt Repair-Versuch.
+- Thread-Verlauf als LLM-Kontext statt nur der jüngsten Mail
+- `output_config.format` für schemagarantierte Antworten statt Repair-Versuch
+- Kostentracking pro Lauf (die `runs`-Tabelle hat den Platz schon)
+- Duplikaterkennung über `body_hash`
+- Anhänge auswerten statt nur ihre Dateinamen zu kennen
+- Messen, ob ein günstigeres Modell die Einordnung gleich gut trifft

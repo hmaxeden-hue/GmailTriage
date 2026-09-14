@@ -1,4 +1,10 @@
-import type { DraftStore, MessageStore, RunStore, TriageStore } from '../../core/ports.js';
+import type {
+  DraftStore,
+  MessageStore,
+  NotificationStore,
+  RunStore,
+  TriageStore,
+} from '../../core/ports.js';
 import type { DraftRecord, NormalizedMessage, TriageRecord } from '../../core/types.js';
 import type { Db } from './db.js';
 
@@ -292,5 +298,27 @@ export class SqliteDraftStore implements DraftStore {
       | DraftRow
       | undefined;
     return row ? toDraft(row) : null;
+  }
+}
+
+/** Der Primaerschluessel (message_id, channel) verhindert doppelte Pushes. */
+export class SqliteNotificationStore implements NotificationStore {
+  constructor(private readonly db: Db) {}
+
+  markNotified(messageId: string, channel: string, sentAt: number, dryRun: boolean): boolean {
+    const info = this.db
+      .prepare(
+        `INSERT OR IGNORE INTO notifications (message_id, channel, sent_at, dry_run)
+         VALUES (?, ?, ?, ?)`,
+      )
+      .run(messageId, channel, sentAt, dryRun ? 1 : 0);
+    return info.changes > 0;
+  }
+
+  wasNotified(messageId: string, channel: string): boolean {
+    const row = this.db
+      .prepare('SELECT 1 AS hit FROM notifications WHERE message_id = ? AND channel = ?')
+      .get(messageId, channel) as { hit: number } | undefined;
+    return row !== undefined;
   }
 }
