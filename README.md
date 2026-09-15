@@ -273,16 +273,48 @@ Fixtures neu erzeugen: `pnpm fixtures:build`.
 Eigene Mails anonymisieren: `pnpm anonymize roh.json fixtures/13-eigene.json`
 (läuft lokal; Ergebnis von Hand gegenlesen).
 
-## Bewusst nicht gebaut
+## Phase 2
 
-Review-Dashboard, Mandantenfähigkeit, Billing, Auto-Versand, Kalender,
-Offert-PDF. Alles Phase 2 oder später.
+Phase 1 läuft gegen ein einziges Postfach und legt Entwürfe an, die ein
+Mensch freigibt. Was danach ansteht, in der Reihenfolge, in der es sich
+gegenseitig bedingt:
 
-### Später
+**Zuerst messen, dann bauen.** Ein Lauf über echte Post zeigt, ob die
+Einordnung trifft. Ohne diese Zahl ist jede weitere Entscheidung geraten —
+auch die, ob ein günstigeres Modell reicht. Dafür braucht es eine kleine
+Eval-Sammlung aus eigenen, anonymisierten Mails (`pnpm anonymize`) mit
+hinterlegtem Sollergebnis.
+
+**Review-Dashboard (SvelteKit).** Entwürfe durchsehen, bearbeiten, freigeben
+— ohne Umweg über die Gmail-Oberfläche. Der Grund, warum es Phase 2 ist und
+nicht Phase 1: solange die Trefferquote unbekannt ist, wäre es eine
+Oberfläche für ein ungelöstes Problem.
+
+**Mandantenfähigkeit.** Mehrere Betriebe mit je eigenem Profil, eigenem
+Token und getrennten Daten. Betrifft das Datenmodell an der Wurzel — jede
+Tabelle braucht einen Mandantenschlüssel — und die OAuth-Führung, weil
+Google für fremde Postfächer eine verifizierte App verlangt. Das ist der
+grösste Brocken.
+
+**Billing.** Erst sinnvoll, wenn Mandantenfähigkeit steht.
+
+**Kalenderanbindung.** Freie Termine kennen, statt nach dem Zeitraum zu
+fragen. Berührt Regel 2 unmittelbar: sobald echte Verfügbarkeiten vorliegen,
+darf der Entwurf sie nennen — das muss sauber von "erfundenen" Terminen
+getrennt bleiben.
+
+**Offert-PDF.** Setzt hinterlegte Preise voraus. Solange `preisliste: null`
+ist, gibt es nichts zu rechnen.
+
+### Kleineres, unabhängig davon machbar
 
 - Thread-Verlauf als LLM-Kontext statt nur der jüngsten Mail
 - `output_config.format` für schemagarantierte Antworten statt Repair-Versuch
 - Kostentracking pro Lauf (die `runs`-Tabelle hat den Platz schon)
 - Duplikaterkennung über `body_hash`
 - Anhänge auswerten statt nur ihre Dateinamen zu kennen
-- Messen, ob ein günstigeres Modell die Einordnung gleich gut trifft
+
+### Bleibt auch in Phase 2 ausgeschlossen
+
+Automatischer Versand. Die Freigabe macht der Mensch — das ist keine
+Reifestufe, sondern die Grundannahme des Produkts.
