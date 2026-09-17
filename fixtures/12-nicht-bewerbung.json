@@ -1,0 +1,49 @@
+{
+  "id": "fix-12",
+  "threadId": "fix-12",
+  "labelIds": [
+    "INBOX",
+    "UNREAD"
+  ],
+  "internalDate": "1789225200000",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      {
+        "name": "From",
+        "value": "Ali Demir <ali.demir@example.com>"
+      },
+      {
+        "name": "To",
+        "value": "Betrieb <betrieb@example.ch>"
+      },
+      {
+        "name": "Subject",
+        "value": "Initiativbewerbung"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<fix-12@mail.example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Sat, 12 Sep 2026 15:00:00 GMT"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/plain",
+        "body": {
+          "data": "U2VociBnZWVocnRlIERhbWVuIHVuZCBIZXJyZW4KCmljaCBiZXdlcmJlIG1pY2ggaW5pdGlhdGl2IGJlaSBJaG5lbi4gTWVpbmUgVW50ZXJsYWdlbiBmaW5kZW4gU2llIGltIEFuaGFuZy4Kw5xiZXIgZWluZSBSw7xja21lbGR1bmcgd8O8cmRlIGljaCBtaWNoIGZyZXVlbi4KCkZyZXVuZGxpY2hlIEdyw7xzc2UKQWxpIERlbWly"
+        }
+      },
+      {
+        "mimeType": "application/pdf",
+        "filename": "lebenslauf.pdf",
+        "body": {
+          "attachmentId": "att-1"
+        }
+      }
+    ]
+  }
+}

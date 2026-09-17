@@ -1,0 +1,49 @@
+{
+  "id": "fix-02",
+  "threadId": "fix-02",
+  "labelIds": [
+    "INBOX",
+    "UNREAD"
+  ],
+  "internalDate": "1789336800000",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      {
+        "name": "From",
+        "value": "Bauleitung Frey <bauleitung@freybau.example>"
+      },
+      {
+        "name": "To",
+        "value": "Betrieb <betrieb@example.ch>"
+      },
+      {
+        "name": "Subject",
+        "value": "Anfrage Arbeiten Neubau MFH Kriens, Termin KW 6"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<fix-02@mail.example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Sun, 13 Sep 2026 22:00:00 GMT"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/plain",
+        "body": {
+          "data": "U2VociBnZWVocnRlIERhbWVuIHVuZCBIZXJyZW4KCmbDvHIgdW5zZXJlbiBOZXViYXUgaW4gS3JpZW5zIChNRkgsIDggV29obnVuZ2VuKSBzdWNoZW4gd2lyIGVpbmVuIFBhcnRuZXIuCkF1c2bDvGhydW5nIGFiIEtXIDYsIERhdWVyIGNhLiBkcmVpIFdvY2hlbi4KRGllIEF1c3NjaHJlaWJ1bmdzdW50ZXJsYWdlbiBow6RuZ2VuIGFuLgoKQml0dGUgbWVsZGVuIFNpZSBzaWNoIGJpcyBFbmRlIE1vbmF0LCBvYiBTaWUgS2FwYXppdMOkdCBoYWJlbi4KCk1pdCBmcmV1bmRsaWNoZW4gR3LDvHNzZW4KVGhvbWFzIEZyZXkKRnJleSBCYXUgQUcKVGVsLiArNDEgNDEgMzAwIDEwIDEw"
+        }
+      },
+      {
+        "mimeType": "application/pdf",
+        "filename": "ausschreibung.pdf",
+        "body": {
+          "attachmentId": "att-1"
+        }
+      }
+    ]
+  }
+}

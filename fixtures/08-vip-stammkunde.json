@@ -1,0 +1,37 @@
+{
+  "id": "fix-08",
+  "threadId": "fix-08",
+  "labelIds": [
+    "INBOX",
+    "UNREAD"
+  ],
+  "internalDate": "1789344000000",
+  "payload": {
+    "mimeType": "text/plain",
+    "headers": [
+      {
+        "name": "From",
+        "value": "Verwaltung Zentral <kontakt@vip-verwaltung.example>"
+      },
+      {
+        "name": "To",
+        "value": "Betrieb <betrieb@example.ch>"
+      },
+      {
+        "name": "Subject",
+        "value": "Folgeauftrag Liegenschaft Obergrundstrasse"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<fix-08@mail.example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Mon, 14 Sep 2026 00:00:00 GMT"
+      }
+    ],
+    "body": {
+      "data": "R3V0ZW4gVGFnCgp3aWUgYmVzcHJvY2hlbiBtw7ZjaHRlbiB3aXIgZGVuIEZvbGdlYXVmdHJhZyBmw7xyIGRpZSBMaWVnZW5zY2hhZnQgYW4gZGVyCk9iZXJncnVuZHN0cmFzc2UgYXVzbMO2c2VuLiBVbWZhbmcgd2llIGxldHp0ZXMgTWFsLCBBdXNmw7xocnVuZyBpbSBPa3RvYmVyLgoKQml0dGUgdW0ga3VyemUgQmVzdMOkdGlndW5nLgoKLS0KUmVndWxhIEh1bnppa2VyClZlcndhbHR1bmcgWmVudHJhbCBBRwpPYmVyZ3J1bmRzdHJhc3NlIDg4LCA2MDAzIEx1emVybgorNDEgNDEgMjIyIDMzIDQ0"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+gmail:
+  query: "is:unread -category:promotions -category:social"
+  maxResults: 100
+  credentialsPath: "config/credentials.json"
+  tokenPath: "config/token.json"
+  # Label, das --write auf bearbeitete Mails setzt. Leer lassen = kein Label.
+  label: null
+
+llm:
+  # Entscheidung CP0: Anthropic ist Default. Achtung — damit verlassen
+  # vollstaendige Mail-Inhalte den Rechner (siehe README, Abschnitt
+  # "Externe Endpunkte"). Fuer rein lokalen Betrieb auf openai-compatible
+  # mit baseUrl http://localhost:1234/v1 (LM Studio) umstellen.
+  provider: anthropic
+  model: "claude-opus-5"
+  # temperature wird nur an Modelle gereicht, die Sampling noch annehmen.
+  # claude-opus-5 und die uebrige 4.7+-Generation lehnen den Parameter ab
+  # (HTTP 400) — siehe README, Abschnitt "Temperatur 0.1".
+  temperature: 0.1
+  maxTokens: 4000
+  effort: low          # Denktiefe; Klassifikation kommt mit low aus
+  refusalFallback: true
+
+ingest:
+  maxBodyChars: 8000
+  defaultSince: "7d"
+
+telegram:
+  enabled: false     # Feature-Flag, Default aus
+
+storage:
+  dbPath: "data/triage.db"
+  outDir: "out"

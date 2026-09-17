@@ -1,0 +1,37 @@
+{
+  "id": "fix-05",
+  "threadId": "fix-05",
+  "labelIds": [
+    "INBOX",
+    "UNREAD"
+  ],
+  "internalDate": "1789351200000",
+  "payload": {
+    "mimeType": "text/plain",
+    "headers": [
+      {
+        "name": "From",
+        "value": "j.keller@example.ch"
+      },
+      {
+        "name": "To",
+        "value": "Betrieb <betrieb@example.ch>"
+      },
+      {
+        "name": "Subject",
+        "value": "Anfrage"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<fix-05@mail.example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Mon, 14 Sep 2026 02:00:00 GMT"
+      }
+    ],
+    "body": {
+      "data": "SGFsbG8sIHdhcyB3w7xyZGUgZGFzIHVuZ2Vmw6RociBrb3N0ZW4_IERhbmtl"
+    }
+  }
+}

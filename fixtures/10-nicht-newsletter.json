@@ -1,0 +1,42 @@
+{
+  "id": "fix-10",
+  "threadId": "fix-10",
+  "labelIds": [
+    "INBOX",
+    "UNREAD"
+  ],
+  "internalDate": "1789326000000",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      {
+        "name": "From",
+        "value": "Branchenverband <news@verband.example>"
+      },
+      {
+        "name": "To",
+        "value": "Betrieb <betrieb@example.ch>"
+      },
+      {
+        "name": "Subject",
+        "value": "Newsletter September: Neue Normen und Weiterbildungen"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<fix-10@mail.example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Sun, 13 Sep 2026 19:00:00 GMT"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/html",
+        "body": {
+          "data": "PGh0bWw-PGJvZHk-PGgxPk5ld3NsZXR0ZXIgU2VwdGVtYmVyPC9oMT4KPHA-RGllIG5ldWVuIE5vcm1lbiB0cmV0ZW4gaW0gSmFudWFyIGluIEtyYWZ0LiA8YSBocmVmPSJodHRwczovL3ZlcmJhbmQuZXhhbXBsZS9uIj5NZWhyIGVyZmFocmVuPC9hPjwvcD4KPHA-QWJtZWxkZW4gayZvdW1sO25uZW4gU2llIHNpY2ggPGEgaHJlZj0iaHR0cHM6Ly92ZXJiYW5kLmV4YW1wbGUvdSI-aGllcjwvYT4uPC9wPgo8L2JvZHk-PC9odG1sPg"
+        }
+      }
+    ]
+  }
+}
